@@ -180,7 +180,7 @@ void MemoryAccess::createUser(User& user)
 }
 
 void MemoryAccess::deleteUser(const User& user)
-{
+{	
 	for (auto iter = m_albums.begin(); iter != m_albums.end(); ++iter) {
 		if (iter->getOwnerId() == user.getId())
 		{
