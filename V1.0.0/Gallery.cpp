@@ -2,7 +2,8 @@
 #include <string>
 #include "MemoryAccess.h"
 #include "AlbumManager.h"
-
+#include <chrono>
+#include <ctime> 
 
 int getCommandNumberFromUser()
 {
@@ -28,6 +29,15 @@ int getCommandNumberFromUser()
 	return std::atoi(input.c_str());
 }
 
+void print_time_name()
+{
+	auto time = std::chrono::system_clock::now();
+	std::time_t curr_time = std::chrono::system_clock::to_time_t(time);
+
+	std::cout << "Lior Mariasin\nCurrent time: " << std::ctime(&curr_time) << std::endl;
+
+}
+
 int main(void)
 {
 	// initialization data access
@@ -38,6 +48,10 @@ int main(void)
 
 
 	std::string albumName;
+
+	// used to print the current time.
+	print_time_name();
+
 	std::cout << "Welcome to Gallery!" << std::endl;
 	std::cout << "===================" << std::endl;
 	std::cout << "Type " << HELP << " to a list of all supported commands" << std::endl;
