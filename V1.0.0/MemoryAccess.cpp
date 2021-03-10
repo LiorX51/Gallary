@@ -181,13 +181,21 @@ void MemoryAccess::createUser(User& user)
 
 void MemoryAccess::deleteUser(const User& user)
 {
-	if (doesUserExists(user.getId())) {
-	
-		for (auto iter = m_users.begin(); iter != m_users.end(); ++iter) {
-			if (*iter == user) {
-				iter = m_users.erase(iter);
-				return;
-			}
+	for (auto iter = m_albums.begin(); iter != m_albums.end(); ++iter) {
+		if (iter->getOwnerId() == user.getId())
+		{
+			iter = m_albums.erase(iter);
+		}
+		if (iter == m_albums.end())
+		{
+			break;
+		}
+	}
+
+	for (auto iter = m_users.begin(); iter != m_users.end(); ++iter) {
+		if (*iter == user) {
+			iter = m_users.erase(iter);
+			return;
 		}
 	}
 }
