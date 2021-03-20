@@ -46,12 +46,13 @@ public:
 	std::list<Picture> getTaggedPicturesOfUser(const User& user) override;
 
 	bool open() override;
-	void close() override {};
+	void close() override;
 	void clear() override;
 
 private:
 	std::list<Album> m_albums;
 	std::list<User> m_users;
+	sqlite3* db;
 
 	auto getAlbumIfExists(const std::string& albumName);
 

@@ -2,6 +2,7 @@
 #include <list>
 #include "Album.h"
 #include "User.h"
+#include "sqlite3.h"
 
 class IDataAccess
 {

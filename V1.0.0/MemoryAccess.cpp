@@ -20,18 +20,42 @@ void MemoryAccess::printAlbums()
 
 bool MemoryAccess::open()
 {
-	// create some dummy albums
-	for (int i=0; i<5; ++i) {
-		// create some dummy users
-		std::stringstream name("User_"+std::to_string(i));
+	int res = sqlite3_open(BD_FILE_NAME, &this->db);
+	char* errMessage = nullptr;
 
-		User user(i, name.str());
-		createUser(user);
-
-		m_albums.push_back(createDummyAlbum(user));
+	if (res != SQLITE_OK)
+	{
+		this->db = nullptr;
+		std::cout << "Failed to open DB" << std::endl;
+		return false;
 	}
 
+	//create needed tables:
+
+	// albums table;
+	char* sqlStatement = "CREATE TABLE ALBUMS (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, NAME TEXT NOT NULL, CREATION_DATE TEXT NOT NULL, USER_ID TEXT NOT NULL); ";
+
+	res = sqlite3_exec(db, sqlStatement, nullptr, nullptr, &errMessage);
+	if (res != SQLITE_OK)
+		return false;
+
+	// users table;
+	sqlStatement = "CREATE TABLE USERS (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, NAME TEXT NOT NULL); ";
+
+	errMessage = nullptr;
+	res = sqlite3_exec(db, sqlStatement, nullptr, nullptr, &errMessage);
+	if (res != SQLITE_OK)
+		return false;
+	
+
+
 	return true;
+}
+
+void MemoryAccess::close()
+{
+	sqlite3_close(this->db);
+	db = nullptr;
 }
 
 void MemoryAccess::clear()
