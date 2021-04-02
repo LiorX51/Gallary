@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <list>
-#include "Album.h"
-#include "User.h"
+//#include "Album.h"
+//#include "User.h"
 #include "IDataAccess.h"
 
 class MemoryAccess : public IDataAccess
@@ -60,5 +60,5 @@ private:
 	Album createDummyAlbum(const User& user);
 	void cleanUserData(const User& userId);
 
-	static int callback(void* NotUsed, int argc, char** argv, char** azColName);
+	static int albumCallback(void* data, int argc, char** argv, char** azColName);
 };
