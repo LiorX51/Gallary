@@ -61,4 +61,13 @@ private:
 	void cleanUserData(const User& userId);
 
 	static int albumCallback(void* data, int argc, char** argv, char** azColName);
+	static int doesExistCallBack(void* data, int argc, char** argv, char** azColName);
+	static int makeAlbumCallBack(void* data, int argc, char** argv, char** azColName);
+	static int picsCallback(void* data, int argc, char** argv, char** azColName);
+	static int tagsCallBack(void* data, int argc, char** argv, char** azColName);
+	static int makeUserCallback(void* data, int argc, char** argv, char** azColName);
+	static int countCallback(void* data, int argc, char** argv, char** azColName);
+	static int maxTaggedUserCallback(void* data, int argc, char** argv, char** azColName);
+	static int maxTaggedPicCallback(void* data, int argc, char** argv, char** azColName);
+	static int usersCallback(void* data, int argc, char** argv, char** azColName);
 };

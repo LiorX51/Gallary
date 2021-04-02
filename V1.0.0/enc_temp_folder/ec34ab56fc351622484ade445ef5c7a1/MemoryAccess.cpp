@@ -250,7 +250,7 @@ void MemoryAccess::removePictureFromAlbumByName(const std::string& albumName, co
 {
 	std::string sqlStatement;
 
-	sqlStatement = "DELETE FROM TAGS WHERE PICTURE_ID = '(SELECT ID FROM PICTURES WHERE NAME = " + pictureName + " AND ALBUM_ID = '(SELECT ID FROM ALBUMS WHERE Name = " + albumName + " LIMIT 1)';";
+	sqlStatement = "DELETE FROM TAGS WHERE PICTURE_ID = '(SELECT ID FROM PICTURES WHERE NAME = " + pictureName + " AND ALBUM_ID = '(SELECT ID FROM ALBUMS WHERE Name = " + albumName + " LIMIT 1)')";
 	//std::string sqlStatement = "DELETE FROM TAGS WHERE PICTURE_ID = (SELECT ID FROM PICTURES WHERE NAME = '" + pictureName + "') AND ALBUM_ID = (SELECT ID FROM ALBUMS WHERE NAME = '" + albumName + "');";
 	char* errMessage = nullptr;
 	int res = sqlite3_exec(db, sqlStatement.c_str(), nullptr, nullptr, &errMessage);
