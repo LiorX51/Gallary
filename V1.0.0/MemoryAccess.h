@@ -52,10 +52,13 @@ public:
 private:
 	std::list<Album> m_albums;
 	std::list<User> m_users;
+
 	sqlite3* db;
 
 	auto getAlbumIfExists(const std::string& albumName);
 
 	Album createDummyAlbum(const User& user);
 	void cleanUserData(const User& userId);
+
+	static int callback(void* NotUsed, int argc, char** argv, char** azColName);
 };

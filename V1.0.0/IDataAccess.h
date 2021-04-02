@@ -4,6 +4,8 @@
 #include "User.h"
 #include "sqlite3.h"
 
+#define BD_FILE_NAME "MyDB.sqlite"
+
 class IDataAccess
 {
 public:

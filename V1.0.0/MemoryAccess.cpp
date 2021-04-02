@@ -3,8 +3,9 @@
 
 #include "ItemNotFoundException.h"
 #include "MemoryAccess.h"
+#include <string>
 
-
+std::string album_id;
 
 void MemoryAccess::printAlbums() 
 {
@@ -33,21 +34,48 @@ bool MemoryAccess::open()
 	//create needed tables:
 
 	// albums table;
-	char* sqlStatement = "CREATE TABLE ALBUMS (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, NAME TEXT NOT NULL, CREATION_DATE TEXT NOT NULL, USER_ID TEXT NOT NULL); ";
+	char* sqlStatement = "CREATE TABLE ALBUMS (ID INT PRIMARY KEY AUTOINCREMENT NOT NULL, NAME TEXT NOT NULL, CREATION_DATE TEXT NOT NULL, USER_ID TEXT NOT NULL); ";
 
 	res = sqlite3_exec(db, sqlStatement, nullptr, nullptr, &errMessage);
 	if (res != SQLITE_OK)
 		return false;
 
 	// users table;
-	sqlStatement = "CREATE TABLE USERS (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, NAME TEXT NOT NULL); ";
+	sqlStatement = "CREATE TABLE USERS (ID INT INT FOREIGN_KEY REFERENCES ALBUMS(USER_ID) NOT NULL, NAME TEXT NOT NULL); ";
 
 	errMessage = nullptr;
 	res = sqlite3_exec(db, sqlStatement, nullptr, nullptr, &errMessage);
 	if (res != SQLITE_OK)
 		return false;
-	
 
+	// tags table;
+	sqlStatement = "	CREATE TABLE TAGS(\
+		ID         INT PRIMARY KEY\
+		NOT NULL,\
+		PICTURE_ID TEXT  INT FOREIGN_KEY REFERENCES PICTURES(ID)  NOT NULL,\
+		USER_ID    TEXT  INT FOREIGN_KEY REFERENCES USERS(ID)  NOT NULL\
+		); ";
+
+	errMessage = nullptr;
+	res = sqlite3_exec(db, sqlStatement, nullptr, nullptr, &errMessage);
+	if (res != SQLITE_OK)
+		return false;
+
+	// pictures table;
+	sqlStatement = "CREATE TABLE PICTURES (\
+		ID            INT PRIMARY KEY\
+		NOT NULL,\
+		NAME          TEXT    NOT NULL,\
+		LOCATION      TEXT    NOT NULL,\
+		CREATION_DATE TEXT    NOT NULL,\
+		ALBUM_ID      INT	INT FOREIGN_KEY REFERENCES ALBUMS(ID)	  NOT NULL\
+		);\
+		";
+
+	errMessage = nullptr;
+	res = sqlite3_exec(db, sqlStatement, nullptr, nullptr, &errMessage);
+	if (res != SQLITE_OK)
+		return false;
 
 	return true;
 }
@@ -111,17 +139,31 @@ const std::list<Album> MemoryAccess::getAlbumsOfUser(const User& user)
 
 void MemoryAccess::createAlbum(const Album& album)
 {
-	m_albums.push_back(album);
+	char* errMessage = nullptr;
+	char* sqlStatement;
+
+	std::string id = std::to_string(album.getOwnerId());	
+	std::string name = album.getName();
+	
+	sqlStatement = "INSERT INTO ALBUMS (NAME, CREATION_DATE, USER_ID) VALUES(", name.c_str(), ", " + album.getCreationDate() + ", " + id + ");";
+
+	errMessage = nullptr;
+	int res = sqlite3_exec(db, sqlStatement, nullptr, nullptr, &errMessage);
+	if (res != SQLITE_OK)
+		return;
 }
 
 void MemoryAccess::deleteAlbum(const std::string& albumName, int userId)
 {
-	for (auto iter = m_albums.begin(); iter != m_albums.end(); iter++) {
-		if ( iter->getName() == albumName && iter->getOwnerId() == userId ) {
-			iter = m_albums.erase(iter);
-			return;
-		}
-	}
+	char* errMessage = nullptr;
+	char* sqlStatement;
+
+	sqlStatement = "DELETE FROM ALBUMS WHERE NAME = '", albumName, "' AND USER_ID ='", userId, "';";
+
+	errMessage = nullptr;
+	int res = sqlite3_exec(db, sqlStatement, nullptr, nullptr, &errMessage);
+	if (res != SQLITE_OK)
+		return;
 }
 
 bool MemoryAccess::doesAlbumExists(const std::string& albumName, int userId) 
@@ -147,9 +189,21 @@ Album MemoryAccess::openAlbum(const std::string& albumName)
 
 void MemoryAccess::addPictureToAlbumByName(const std::string& albumName, const Picture& picture) 
 {
-	auto result = getAlbumIfExists(albumName);
+	std::string sqlStatement = "SELECT ID FROM ALBUMS WHERE NAME = '" + albumName + "'";
 
-	(*result).addPicture(picture);
+	char* errMessage = nullptr;
+	int res = sqlite3_exec(db, sqlStatement.c_str(), callback, nullptr, &errMessage);
+	if (res != SQLITE_OK)
+		return;
+
+	std::string sqlStatement = "INSERT INTO PICTURES (ID, NAME, CREATION_DATE, ALBUM_ID)\
+		VALUES('" + std::to_string(picture.getId()) + "', '" + picture.getName() + "', '" + picture.getCreationDate() + "', '" + album_id + "); ";
+	
+
+	char* errMessage = nullptr;
+	int res = sqlite3_exec(db, sqlStatement.c_str(), callback, nullptr, &errMessage);
+	if (res != SQLITE_OK)
+		return;
 }
 
 void MemoryAccess::removePictureFromAlbumByName(const std::string& albumName, const std::string& pictureName) 
@@ -367,4 +421,29 @@ std::list<Picture> MemoryAccess::getTaggedPicturesOfUser(const User& user)
 	}
 
 	return pictures;
+}
+
+
+// Create a callback function  
+static int callback(void* NotUsed, int argc, char** argv, char** azColName) 
+{
+
+	// int argc: holds the number of results
+	// (array) azColName: holds each column returned
+	// (array) argv: holds each value
+
+	//for (int i = 0; i < argc; i++) {
+
+	//	// Show column name, value, and newline
+	//	cout << azColName[i] << ": " << argv[i] << endl;
+
+	//}
+
+	//// Insert a newline
+	//cout << endl;
+
+	album_id = argv[0];
+
+	// Return successful
+	return 0;
 }
